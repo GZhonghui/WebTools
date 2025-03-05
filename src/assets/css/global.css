@@ -1,0 +1,24 @@
+.router-link {
+  font-family: "SimSun", "STSong", serif;
+  font-size: 16px;
+  padding: 5px 10px;
+  border: 1px solid #000;
+  margin-right: 10px;
+}
+
+/* 选中状态 这个 class 是自动获得的 */
+.router-link-active {
+  background-color: #ccc;
+}
+
+.nav-container {
+  margin-bottom: 10px;
+}
+
+h2.tool_title {
+  color: red;
+}
+
+h1, h2 {
+  font-family: "SimSun", "STSong", serif;
+}
