@@ -17,8 +17,21 @@
 
 h2.tool_title {
   color: red;
+  margin-bottom: 10px;
 }
 
-h1, h2 {
+h1, h2, p, label, .stranded-input, .stranded-button {
   font-family: "SimSun", "STSong", serif;
+}
+
+.stranded-input {
+  font-size: 16px;
+  padding: 2px 5px;
+  margin: 5px;
+}
+
+.stranded-button {
+  font-size: 18px;
+  padding: 5px 10px;
+  margin: 4px 8px 4px 0;
 }
