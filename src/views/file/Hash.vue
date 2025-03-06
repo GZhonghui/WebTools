@@ -21,6 +21,7 @@ function calculateHash() {
   }
   calculating.value = true;
 
+  // 获取文件输入框
   const fileInput = document.getElementById('file-input');
   if(!fileInput.files.length) {
     res_md5.value = '请选择文件';
@@ -29,6 +30,8 @@ function calculateHash() {
     return;
   }
 
+  // 获取文件
+  // 出于安全考虑，无法获得文件路径，只能通过这种方式读取文件内容
   const file = fileInput.files[0];
   const chunkSize = 2 * 1024 * 1024; // 2MB
   let currentChunk = 0;
@@ -38,6 +41,7 @@ function calculateHash() {
   const sha1Hash = CryptoJS.algo.SHA1.create();
   const sha256Hash = CryptoJS.algo.SHA256.create();
 
+  // 用于读取文件内容
   const reader = new FileReader();
 
   reader.onload = (e) => {
@@ -86,6 +90,7 @@ function calculateHash() {
 
 <template>
   <h2 class="tool_title">计算文件哈希：全程离线，已做分块处理，大文件也没问题</h2>
+  <!-- 让用户选择文件：用最简单、原生的 input 标签即可，自带一个选择按钮 -->
   <input type="file" id="file-input">
   <br>
   <button class="stranded-button" @click="calculateHash">
