@@ -98,7 +98,7 @@ function calculateHash() {
   </button>
   <br>
   <div>
-    <progress :value="progress" max=100></progress>
+    <progress :value="progress" max="100"></progress>
     <label>{{ progress }}%</label>
   </div>
   <div id="hash-res">
