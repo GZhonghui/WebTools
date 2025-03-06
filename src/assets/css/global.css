@@ -24,6 +24,20 @@ h1, h2, p, label, .stranded-input, .stranded-button {
   font-family: "SimSun", "STSong", serif;
 }
 
+input[type="file"] {
+  font-size: 16px;
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  margin-bottom: 10px;
+}
+
+progress {
+  width: 256px;
+  color: blue;
+  margin-right: 10px;
+}
+
 .stranded-input {
   font-size: 16px;
   padding: 2px 5px;
