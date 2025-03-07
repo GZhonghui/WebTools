@@ -1,15 +1,17 @@
 <script setup>
-import { ref, onMounted, onBeforeUnmount } from 'vue'
+import { ref, reactive, onMounted, onBeforeUnmount } from 'vue'
 import { setTitle } from '../../common.js'
 
-let workTime = ref(25)
-let breakTime = ref(5)
-let progress = ref(100)
+let workTime = ref(25) // 绑定输入：工作时间
+let breakTime = ref(5) // 绑定输入：休息时间
+let progress = ref(100) // 绑定进度条：进度
 
-let timer = null
-let isRunning = ref(false)
-let isWorking = ref(true)
-let remainingSeconds = ref(workTime.value * 60)
+let timer = null // 计时器
+let isRunning = ref(false) // 是否计时中
+let isWorking = ref(true) // 状态：工作/休息
+let remainingSeconds = ref(workTime.value * 60) // 当前状态的剩余秒数
+
+let record_data = ref({}); // 记录专注时长
 
 // 在 DOM 完成加载之前，是无法获取到 bgm 组件的
 let bgm_cache = null;
@@ -21,6 +23,14 @@ let bgm = () => {
   return bgm_cache;
 }
 
+let today = () => {
+  let d = new Date();
+  return d.getFullYear() + '-'
+    + (d.getMonth() + 1).toString().padStart(2, '0') + '-'
+    + d.getDate().toString().padStart(2, '0');
+}
+
+// 状态显示
 function status() {
   let s = isRunning.value ? (isWorking.value ? '工作中' : '休息中') : '暂停中';
   let t = Math.floor(remainingSeconds.value / 60) + ':' + (remainingSeconds.value % 60);
@@ -50,6 +60,17 @@ function tick() {
     }
   }
 
+  if(isRunning.value && isWorking.value) {
+    // 计时功能
+    let id = today();
+    if(!record_data.value[id]) {
+      record_data.value[id] = 0;
+    }
+    record_data.value[id]++;
+    // 保存到本地
+    localStorage.setItem('pomodoro-data', JSON.stringify(record_data.value));
+  }
+
   if (!isRunning.value) {    
     return;
   }
@@ -64,6 +85,8 @@ function tick() {
 }
 
 onMounted(() => {
+  let t = localStorage.getItem('pomodoro-data');
+  record_data.value = t ? JSON.parse(t) : {};
   timer = setInterval(tick, 1000)
 })
 
@@ -94,11 +117,24 @@ onBeforeUnmount(() => {
     {{ status() }}
   </p>
   <progress id="progress-bar" :value="progress" :max="100"></progress>
+  <div id="record-data">
+    <!-- 这里绑定一个 key 是为了帮助 Vue 能够准确地追踪每个节点的身份，从而在数据变化时高效地更新 DOM -->
+    <p v-for="(value, date) in record_data" :key="date">
+      {{ date }} Stay Focused: {{ Math.ceil(value / 60) }} minutes
+    </p>
+  </div>
+  <p>安静，专注，高效</p>
 </template>
 
 <style scoped>
 #progress-bar {
   width: 360px;
   color: blue;
+}
+
+#record-data p {
+  font-family: monospace;
+  font-size: 18px;
+  color: green;
 }
 </style>

@@ -45,7 +45,7 @@ onBeforeUnmount(() => {
   <h2 class="tool_title">时间</h2>
   <div>
     <p>时间戳：{{ timestamp }}</p>
-    <div v-for="(city, index) in cities" id="city-time">
+    <div v-for="(city, index) in cities" :key="index" id="city-time">
       <p>{{ city.name }}：{{ city.time }}</p>
     </div>
   </div>
