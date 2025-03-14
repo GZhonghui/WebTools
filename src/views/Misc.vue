@@ -5,6 +5,7 @@
     <RouterLink class="router-link" to="/misc/time">时间</RouterLink>
     <RouterLink class="router-link" to="/misc/comment">留言</RouterLink>
     <RouterLink class="router-link" to="/misc/pomodoro">番茄</RouterLink>
+    <RouterLink class="router-link" to="/misc/password">密码</RouterLink>
   </div>
   <RouterView />
 </template>
