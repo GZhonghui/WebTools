@@ -4,6 +4,7 @@ import Home from './Home.vue'
 
 import File from './File.vue'
 import FileHash from './file/Hash.vue'
+import FileRename from './file/Rename.vue'
 
 import Image from './Image.vue'
 import ImageCrop from './image/Crop.vue'
@@ -32,6 +33,7 @@ const routes = [
     // 配置子路由
     children: [
       { path: 'hash', component: FileHash },
+      { path: 'rename', component: FileRename },
     ]
   },
   {
