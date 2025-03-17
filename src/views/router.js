@@ -10,6 +10,7 @@ import Image from './Image.vue'
 import ImageCrop from './image/Crop.vue'
 import ImageResize from './image/Resize.vue'
 import ImageWatermark from './image/Watermark.vue'
+import ImageFormat from './image/Format.vue'
 
 import Math from './Math.vue'
 import MathInverse from './math/Inverse.vue'
@@ -44,6 +45,7 @@ const routes = [
       { path: 'crop', component: ImageCrop },
       { path: 'resize', component: ImageResize },
       { path: 'watermark', component: ImageWatermark },
+      { path: 'format', component: ImageFormat },
     ]
   },
   {
