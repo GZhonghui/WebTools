@@ -14,6 +14,7 @@ import ImageFormat from './image/Format.vue'
 
 import Math from './Math.vue'
 import MathInverse from './math/Inverse.vue'
+import MathPrime from './math/Prime.vue'
 
 import Game from './Game.vue'
 import GameEldenRing from './game/EldenRing.vue'
@@ -53,6 +54,7 @@ const routes = [
     component: Math,
     children: [
       { path: 'inverse', component: MathInverse },
+      { path: 'prime', component: MathPrime },
     ]
   },
   {
