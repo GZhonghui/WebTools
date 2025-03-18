@@ -22,6 +22,7 @@ import MiscEncode from './misc/Encode.vue'
 import MiscTime from './misc/Time.vue'
 import MiscComment from './misc/Comment.vue'
 import MiscPomodoro from './misc/Pomodoro.vue'
+import MiscAge from './misc/Age.vue'
 
 // 配置路由
 const routes = [
@@ -66,6 +67,7 @@ const routes = [
       { path: 'time', component: MiscTime },
       { path: 'comment', component: MiscComment },
       { path: 'pomodoro', component: MiscPomodoro },
+      { path: 'age', component: MiscAge },
     ]
   }
 ]
