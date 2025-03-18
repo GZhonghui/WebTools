@@ -49,3 +49,14 @@ progress {
   padding: 5px 10px;
   margin: 4px 8px 4px 0;
 }
+
+.stranded-textarea {
+  font-family: monospace;
+  font-size: 14px;
+}
+
+.stranded-code {
+  background-color: #f0f0f0;
+  padding: 10px;
+  max-width: 480px;
+}
