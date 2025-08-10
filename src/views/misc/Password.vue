@@ -3,7 +3,7 @@ import { ref, onMounted } from 'vue';
 import { setTitle } from '../../common.js'
 
 setTitle('密码生成器')
-const charset = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+const charset = 'abcdefghijkmnopqrstuvwxyzABCDEFGHJKLMNPQRSTUVWXYZ123456789';
 
 let password = ref('')
 let passwordLength = ref(16) // TODO: let user input
