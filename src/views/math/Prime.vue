@@ -4,7 +4,7 @@ import { setTitle } from '../../common.js'
 
 setTitle('质数计算')
 
-// 用户输入（字符串），点击按钮后再统一校验与转换
+// 用户输入（number input 在部分场景会回传 number/null，统一按未知类型处理）
 const inputNumber = ref('')
 // 结果文案：仅通过页面文本展示，不使用弹窗
 const resultText = ref('')
@@ -31,7 +31,8 @@ function isPrime(n) {
 }
 
 function checkPrime() {
-  const raw = inputNumber.value.trim()
+  // 兜底转换为字符串，避免 value 为 number/null 时调用 trim 报错
+  const raw = String(inputNumber.value ?? '').trim()
 
   if (raw === '') {
     resultText.value = '请输入一个整数。'
