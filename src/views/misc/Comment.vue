@@ -1,4 +1,5 @@
 <script setup>
+/*
 import { ref, onMounted } from 'vue'
 import { truncate, formatTimestamp, roughGuessLocation } from '../../common.js'
 
@@ -58,11 +59,12 @@ function sent() {
 onMounted(() => {
   getList()
 })
+*/
 </script>
 
 <template>
   <h2 class="tool_title">留言板</h2>
-  <div>
+  <!-- <div>
     <label>昵称</label>
     <input class="stranded-input" style="width: 128px;" v-model="name" />
     <label>留言</label>
@@ -81,5 +83,5 @@ onMounted(() => {
         </div>
       </li>
     </ul>
-  </div>
+  </div> -->
 </template>
