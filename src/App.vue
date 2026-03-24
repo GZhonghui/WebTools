@@ -9,6 +9,7 @@
     <RouterLink class="router-link" to="/image">图片</RouterLink>
     <RouterLink class="router-link" to="/math">数学</RouterLink>
     <RouterLink class="router-link" to="/game">游戏</RouterLink>
+    <RouterLink class="router-link" to="/encryption">加密</RouterLink>
     <RouterLink class="router-link" to="/misc">杂项</RouterLink>
   </div>
   <RouterView />

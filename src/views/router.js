@@ -19,6 +19,10 @@ import MathPrime from './math/Prime.vue'
 import Game from './Game.vue'
 import GameEldenRing from './game/EldenRing.vue'
 
+import Encryption from './Encryption.vue'
+import EncryptionPassword from './encryption/Password.vue'
+import EncryptionOtp from './encryption/Otp.vue'
+
 import Misc from './Misc.vue'
 import MiscNikke from './misc/Nikke.vue'
 import MiscEncode from './misc/Encode.vue'
@@ -26,7 +30,6 @@ import MiscTime from './misc/Time.vue'
 import MiscComment from './misc/Comment.vue'
 import MiscPomodoro from './misc/Pomodoro.vue'
 import MiscAge from './misc/Age.vue'
-import MiscPassword from './misc/Password.vue'
 
 // 配置路由
 const routes = [
@@ -66,6 +69,14 @@ const routes = [
     ]
   },
   {
+    path: '/encryption',
+    component: Encryption,
+    children: [
+      { path: 'password', component: EncryptionPassword },
+      { path: 'otp', component: EncryptionOtp },
+    ]
+  },
+  {
     path: '/misc',
     component: Misc,
     children: [
@@ -75,7 +86,6 @@ const routes = [
       { path: 'comment', component: MiscComment },
       { path: 'pomodoro', component: MiscPomodoro },
       { path: 'age', component: MiscAge },
-      { path: 'password', component: MiscPassword },
     ]
   }
 ]
