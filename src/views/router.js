@@ -22,6 +22,7 @@ import GameEldenRing from './game/EldenRing.vue'
 import Encryption from './Encryption.vue'
 import EncryptionPassword from './encryption/Password.vue'
 import EncryptionOtp from './encryption/Otp.vue'
+import EncryptionQr from './encryption/Qr.vue'
 
 import Misc from './Misc.vue'
 import MiscNikke from './misc/Nikke.vue'
@@ -74,6 +75,7 @@ const routes = [
     children: [
       { path: 'password', component: EncryptionPassword },
       { path: 'otp', component: EncryptionOtp },
+      { path: 'qr', component: EncryptionQr },
     ]
   },
   {
