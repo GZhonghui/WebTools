@@ -51,10 +51,10 @@ const routes = [
     path: '/image',
     component: Image,
     children: [
-      { path: 'crop', component: ImageCrop },
-      { path: 'resize', component: ImageResize },
+      // { path: 'crop', component: ImageCrop },
+      // { path: 'resize', component: ImageResize },
       { path: 'watermark', component: ImageWatermark },
-      { path: 'format', component: ImageFormat },
+      // { path: 'format', component: ImageFormat },
     ]
   },
   {
