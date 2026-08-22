@@ -1,0 +1,123 @@
+<script setup>
+import { computed, onBeforeUnmount, ref } from 'vue'
+import { setTitle } from '../../common.js'
+import { useDocumentPip } from './embed/useDocumentPip.js'
+import { useYouTubePlayer } from './embed/useYouTubePlayer.js'
+import { parseYouTubeUrl } from './embed/youtubeUrl.js'
+
+setTitle('YouTube 嵌入')
+
+const input = ref('')
+const playerHost = ref(null)
+const parsedVideo = ref(null)
+const inputError = ref('')
+
+const player = useYouTubePlayer(playerHost)
+const pip = useDocumentPip(player)
+
+const statusLabels = {
+  loading: '载入中',
+  ready: '就绪',
+  playing: '播放中',
+  paused: '已暂停',
+  buffering: '缓冲中',
+  ended: '已结束',
+  error: '载入失败',
+}
+
+const canUsePlayer = computed(() => (
+  parsedVideo.value
+    && !['idle', 'loading', 'error'].includes(player.status.value)
+))
+
+const visibleError = computed(() => (
+  inputError.value || player.errorMessage.value || pip.errorMessage.value
+))
+
+async function embedVideo() {
+  inputError.value = ''
+  pip.errorMessage.value = ''
+
+  if (pip.active.value) {
+    inputError.value = '请先关闭画中画窗口'
+    return
+  }
+
+  let parsed
+  try {
+    parsed = parseYouTubeUrl(input.value)
+  } catch (error) {
+    inputError.value = error instanceof Error ? error.message : '无法识别此链接'
+    return
+  }
+
+  parsedVideo.value = parsed
+  try {
+    await player.load(parsed.videoId, parsed.startSeconds)
+  } catch {
+    // The player exposes a concise, user-facing error message.
+  }
+}
+
+onBeforeUnmount(() => {
+  pip.destroy()
+  player.destroy()
+})
+</script>
+
+<template>
+  <h2 class="tool_title">YouTube 嵌入</h2>
+
+  <form @submit.prevent="embedVideo">
+    <label for="youtube-url">视频链接</label>
+    <input
+      id="youtube-url"
+      v-model="input"
+      class="stranded-input"
+      type="text"
+      size="48"
+      placeholder="https://www.youtube.com/watch?v=..."
+      autocomplete="off"
+      spellcheck="false"
+    >
+    <button class="stranded-button" type="submit" :disabled="player.status.value === 'loading'">
+      {{ player.status.value === 'loading' ? '载入中' : '嵌入' }}
+    </button>
+  </form>
+
+  <p v-if="visibleError" role="alert">{{ visibleError }}</p>
+
+  <div v-show="parsedVideo" ref="playerHost" class="youtube-player"></div>
+
+  <template v-if="parsedVideo">
+    <p>状态：{{ pip.active.value ? '画中画' : (statusLabels[player.status.value] || '等待播放') }}</p>
+
+    <button
+      v-if="pip.supported.value"
+      class="stranded-button"
+      type="button"
+      :disabled="!canUsePlayer"
+      @click="pip.toggle(parsedVideo.videoId)"
+    >
+      {{ pip.active.value ? '关闭画中画' : '画中画' }}
+    </button>
+
+    <a :href="parsedVideo.watchUrl" target="_blank" rel="noopener noreferrer">在 YouTube 打开</a>
+
+    <p v-if="pip.supported.value">
+      播放后，也可以从 Chrome 地址栏右侧的媒体控制进入原生画中画。
+    </p>
+    <p v-else>
+      当前浏览器不支持页面内画中画；播放后可尝试使用 Chrome 的媒体控制。
+    </p>
+  </template>
+</template>
+
+<style scoped>
+.youtube-player {
+  width: min(100%, 720px);
+  aspect-ratio: 16 / 9;
+  margin-top: 10px;
+  background: #000;
+}
+</style>

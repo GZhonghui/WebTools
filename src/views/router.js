@@ -12,6 +12,9 @@ import ImageResize from './image/Resize.vue'
 import ImageWatermark from './image/Watermark.vue'
 import ImageFormat from './image/Format.vue'
 
+import Video from './Video.vue'
+import VideoEmbed from './video/Embed.vue'
+
 import Math from './Math.vue'
 import MathInverse from './math/Inverse.vue'
 import MathPrime from './math/Prime.vue'
@@ -55,6 +58,13 @@ const routes = [
       // { path: 'resize', component: ImageResize },
       { path: 'watermark', component: ImageWatermark },
       // { path: 'format', component: ImageFormat },
+    ]
+  },
+  {
+    path: '/video',
+    component: Video,
+    children: [
+      { path: 'embed', component: VideoEmbed },
     ]
   },
   {
