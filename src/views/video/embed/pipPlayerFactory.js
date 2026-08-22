@@ -1,6 +1,6 @@
-import { loadYouTubeIframeApi } from './youtubeIframeApi.js'
+import { createYouTubeIframe, loadYouTubeIframeApi } from './youtubeIframeApi.js'
 
-function preparePipDocument(pipWindow) {
+function preparePipDocument(pipWindow, playerOptions) {
   const document = pipWindow.document
   document.title = 'YouTube 画中画'
 
@@ -17,11 +17,17 @@ function preparePipDocument(pipWindow) {
   document.body.style.overflow = 'hidden'
   document.body.style.background = '#000'
 
-  const mount = document.createElement('div')
-  mount.style.width = '100%'
-  mount.style.height = '100%'
-  document.body.replaceChildren(mount)
-  return mount
+  const referrer = document.createElement('meta')
+  referrer.name = 'referrer'
+  referrer.content = 'strict-origin-when-cross-origin'
+  document.head.append(referrer)
+
+  const iframe = createYouTubeIframe(pipWindow, {
+    ...playerOptions,
+    title: 'YouTube 画中画播放器',
+  })
+  document.body.replaceChildren(iframe)
+  return iframe
 }
 
 export async function createPipPlayer({
@@ -32,7 +38,11 @@ export async function createPipPlayer({
   onStateChange,
   onError,
 }) {
-  const mount = preparePipDocument(pipWindow)
+  const iframe = preparePipDocument(pipWindow, {
+    videoId,
+    startSeconds,
+    autoplay,
+  })
   const YT = await loadYouTubeIframeApi(pipWindow)
 
   if (pipWindow.closed) {
@@ -41,30 +51,21 @@ export async function createPipPlayer({
 
   return new Promise((resolve, reject) => {
     let ready = false
-    const player = new YT.Player(mount, {
-      width: '100%',
-      height: '100%',
-      videoId,
-      playerVars: {
-        enablejsapi: 1,
-        playsinline: 1,
-        autoplay: autoplay ? 1 : 0,
-        start: Math.floor(startSeconds),
-        origin: window.location.origin,
-      },
+    const player = new YT.Player(iframe, {
       events: {
         onReady: () => {
           ready = true
-          const iframe = player.getIframe?.()
-          iframe?.setAttribute('allow', 'autoplay; encrypted-media; picture-in-picture; fullscreen')
-          iframe?.setAttribute('referrerpolicy', 'strict-origin-when-cross-origin')
-          iframe?.setAttribute('title', 'YouTube 画中画播放器')
           resolve(player)
         },
         onStateChange: (event) => onStateChange?.(event.data),
         onError: (event) => {
           onError?.(event.data)
-          if (!ready) reject(new Error(`画中画播放器加载失败（${event.data}）`))
+          if (!ready) {
+            const message = event.data === 153
+              ? 'YouTube 未收到画中画窗口的来源信息，请改用 Chrome 原生画中画'
+              : `画中画播放器加载失败（${event.data}）`
+            reject(new Error(message))
+          }
         },
       },
     })

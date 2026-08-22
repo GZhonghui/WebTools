@@ -102,7 +102,9 @@ export function useDocumentPip(mainPlayer) {
           session.lastState = state
         },
         onError: (code) => {
-          errorMessage.value = `画中画播放器发生错误（${code}）`
+          errorMessage.value = code === 153
+            ? 'YouTube 未收到画中画窗口的来源信息，请改用 Chrome 原生画中画'
+            : `画中画播放器发生错误（${code}）`
           if (!pipWindow.closed) pipWindow.close()
         },
       })
@@ -114,7 +116,9 @@ export function useDocumentPip(mainPlayer) {
 
       session.syncTimer = setInterval(() => updateLastKnownState(session), 750)
     } catch (error) {
-      errorMessage.value = error instanceof Error ? error.message : '画中画播放器加载失败'
+      if (!errorMessage.value) {
+        errorMessage.value = error instanceof Error ? error.message : '画中画播放器加载失败'
+      }
       finishSession(session)
       if (!pipWindow.closed) pipWindow.close()
     }

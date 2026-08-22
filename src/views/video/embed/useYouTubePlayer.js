@@ -1,5 +1,5 @@
 import { ref } from 'vue'
-import { loadYouTubeIframeApi } from './youtubeIframeApi.js'
+import { createYouTubeIframe, loadYouTubeIframeApi } from './youtubeIframeApi.js'
 
 export const YOUTUBE_PLAYER_STATE = {
   UNSTARTED: -1,
@@ -36,15 +36,6 @@ export function useYouTubePlayer(containerRef) {
   let player = null
   let loadVersion = 0
 
-  function setIframePermissions() {
-    const iframe = player?.getIframe?.()
-    if (!iframe) return
-
-    iframe.setAttribute('allow', 'autoplay; encrypted-media; picture-in-picture; fullscreen')
-    iframe.setAttribute('referrerpolicy', 'strict-origin-when-cross-origin')
-    iframe.setAttribute('title', 'YouTube 视频播放器')
-  }
-
   async function load(videoId, startSeconds = 0) {
     const version = ++loadVersion
     errorMessage.value = ''
@@ -66,28 +57,17 @@ export function useYouTubePlayer(containerRef) {
       const YT = await loadYouTubeIframeApi()
       if (version !== loadVersion) return
 
-      const mount = document.createElement('div')
-      host.append(mount)
+      const iframe = createYouTubeIframe(window, { videoId, startSeconds })
+      host.append(iframe)
 
       await new Promise((resolve, reject) => {
         let ready = false
 
-        player = new YT.Player(mount, {
-          width: '100%',
-          height: '100%',
-          videoId,
-          playerVars: {
-            enablejsapi: 1,
-            playsinline: 1,
-            autoplay: 0,
-            start: Math.floor(startSeconds),
-            origin: window.location.origin,
-          },
+        player = new YT.Player(iframe, {
           events: {
             onReady: () => {
               if (version !== loadVersion) return
               ready = true
-              setIframePermissions()
               status.value = 'ready'
               resolve()
             },

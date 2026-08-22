@@ -1,5 +1,38 @@
 const apiPromises = new WeakMap()
 
+export function createYouTubeIframe(targetWindow, {
+  videoId,
+  startSeconds = 0,
+  autoplay = false,
+  title = 'YouTube 视频播放器',
+}) {
+  const iframe = targetWindow.document.createElement('iframe')
+  const embedUrl = new URL(`https://www.youtube.com/embed/${videoId}`)
+
+  embedUrl.searchParams.set('enablejsapi', '1')
+  embedUrl.searchParams.set('playsinline', '1')
+  embedUrl.searchParams.set('autoplay', autoplay ? '1' : '0')
+  embedUrl.searchParams.set('start', String(Math.floor(startSeconds)))
+
+  if (window.location.origin !== 'null') {
+    embedUrl.searchParams.set('origin', window.location.origin)
+  }
+  embedUrl.searchParams.set('widget_referrer', window.location.href)
+
+  // Set the referrer policy before src/DOM insertion so it applies to the
+  // very first YouTube request. This is required to avoid player error 153.
+  iframe.referrerPolicy = 'strict-origin-when-cross-origin'
+  iframe.allow = 'autoplay; encrypted-media; picture-in-picture; fullscreen'
+  iframe.allowFullscreen = true
+  iframe.title = title
+  iframe.width = '100%'
+  iframe.height = '100%'
+  iframe.style.border = '0'
+  iframe.src = embedUrl.toString()
+
+  return iframe
+}
+
 export function loadYouTubeIframeApi(targetWindow = window) {
   if (targetWindow.YT?.Player) {
     return Promise.resolve(targetWindow.YT)
