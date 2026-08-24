@@ -24,6 +24,22 @@ export function useDocumentPip(mainPlayer) {
     }
   }
 
+  function restoreMainPlayer(session) {
+    if (session.video.provider === 'bilibili') {
+      mainPlayer.load(session.video).catch(() => {
+        // The main player exposes the restore error in the page.
+      })
+      return
+    }
+
+    mainPlayer.seekTo(session.lastTime)
+    if ([YOUTUBE_PLAYER_STATE.PLAYING, YOUTUBE_PLAYER_STATE.BUFFERING].includes(session.lastState)) {
+      mainPlayer.play()
+    } else {
+      mainPlayer.pause()
+    }
+  }
+
   function finishSession(session, restore = true) {
     if (session.finished) return
     session.finished = true
@@ -43,15 +59,10 @@ export function useDocumentPip(mainPlayer) {
 
     if (!restore || disposed) return
 
-    mainPlayer.seekTo(session.lastTime)
-    if ([YOUTUBE_PLAYER_STATE.PLAYING, YOUTUBE_PLAYER_STATE.BUFFERING].includes(session.lastState)) {
-      mainPlayer.play()
-    } else {
-      mainPlayer.pause()
-    }
+    restoreMainPlayer(session)
   }
 
-  async function toggle(videoId) {
+  async function toggle(video) {
     errorMessage.value = ''
 
     if (currentSession && !currentSession.pipWindow.closed) {
@@ -64,7 +75,9 @@ export function useDocumentPip(mainPlayer) {
       return
     }
 
-    const lastTime = mainPlayer.getCurrentTime()
+    const lastTime = video.provider === 'youtube'
+      ? mainPlayer.getCurrentTime()
+      : video.startSeconds
     const lastState = mainPlayer.getPlayerState()
     let pipWindow
 
@@ -81,6 +94,7 @@ export function useDocumentPip(mainPlayer) {
     const session = {
       pipWindow,
       player: null,
+      video,
       lastTime,
       lastState,
       syncTimer: null,
@@ -88,21 +102,22 @@ export function useDocumentPip(mainPlayer) {
     }
     currentSession = session
     active.value = true
-    mainPlayer.pause()
+    mainPlayer.suspend()
 
     pipWindow.addEventListener('pagehide', () => finishSession(session), { once: true })
 
     try {
       session.player = await createPipPlayer({
         pipWindow,
-        videoId,
+        video,
         startSeconds: lastTime,
-        autoplay: lastState === YOUTUBE_PLAYER_STATE.PLAYING,
+        autoplay: video.provider === 'bilibili'
+          || lastState === YOUTUBE_PLAYER_STATE.PLAYING,
         onStateChange: (state) => {
           session.lastState = state
         },
         onError: (code) => {
-          errorMessage.value = code === 153
+          errorMessage.value = video.provider === 'youtube' && code === 153
             ? 'YouTube 未收到画中画窗口的来源信息，请改用 Chrome 原生画中画'
             : `画中画播放器发生错误（${code}）`
           if (!pipWindow.closed) pipWindow.close()
@@ -114,7 +129,9 @@ export function useDocumentPip(mainPlayer) {
         return
       }
 
-      session.syncTimer = setInterval(() => updateLastKnownState(session), 750)
+      if (video.provider === 'youtube') {
+        session.syncTimer = setInterval(() => updateLastKnownState(session), 750)
+      }
     } catch (error) {
       if (!errorMessage.value) {
         errorMessage.value = error instanceof Error ? error.message : '画中画播放器加载失败'

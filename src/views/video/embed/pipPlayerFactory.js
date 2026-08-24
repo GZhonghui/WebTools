@@ -1,9 +1,10 @@
+import { createBilibiliIframe } from './bilibiliIframe.js'
 import { createYouTubeIframe, loadYouTubeIframeApi } from './youtubeIframeApi.js'
 import pipHostUrl from './pipHost.html?url&no-inline'
 
-function preparePipWindow(pipWindow) {
+function preparePipWindow(pipWindow, providerName) {
   const document = pipWindow.document
-  document.title = 'YouTube 画中画'
+  document.title = `${providerName} 画中画`
 
   const viewport = document.createElement('meta')
   viewport.name = 'viewport'
@@ -21,7 +22,7 @@ function preparePipWindow(pipWindow) {
   const host = document.createElement('iframe')
   host.referrerPolicy = 'strict-origin-when-cross-origin'
   host.allow = 'autoplay; encrypted-media; picture-in-picture; fullscreen'
-  host.title = 'YouTube 画中画宿主'
+  host.title = '视频画中画宿主'
   host.width = '100%'
   host.height = '100%'
   host.style.border = '0'
@@ -71,31 +72,18 @@ function preparePipWindow(pipWindow) {
   })
 }
 
-export async function createPipPlayer({
+async function createYouTubePipPlayer({
+  hostWindow,
   pipWindow,
-  videoId,
+  video,
   startSeconds,
   autoplay,
   onStateChange,
   onError,
 }) {
-  const hostWindow = await preparePipWindow(pipWindow)
-
-  if (pipWindow.closed) {
-    throw new Error('画中画窗口已关闭')
-  }
-
   const hostDocument = hostWindow.document
-  hostDocument.documentElement.style.width = '100%'
-  hostDocument.documentElement.style.height = '100%'
-  hostDocument.body.style.width = '100%'
-  hostDocument.body.style.height = '100%'
-  hostDocument.body.style.margin = '0'
-  hostDocument.body.style.overflow = 'hidden'
-  hostDocument.body.style.background = '#000'
-
   const iframe = createYouTubeIframe(hostWindow, {
-    videoId,
+    videoId: video.videoId,
     startSeconds,
     autoplay,
     title: 'YouTube 画中画播放器',
@@ -129,4 +117,64 @@ export async function createPipPlayer({
       },
     })
   })
+}
+
+function createBilibiliPipPlayer({
+  hostWindow,
+  video,
+  startSeconds,
+  autoplay,
+}) {
+  const iframe = createBilibiliIframe(hostWindow, video, {
+    startSeconds,
+    autoplay,
+    title: 'Bilibili 画中画播放器',
+  })
+
+  return new Promise((resolve, reject) => {
+    const handleLoad = () => {
+      clearTimeout(timeoutTimer)
+      resolve({
+        destroy: () => iframe.remove(),
+        getCurrentTime: () => startSeconds,
+        getPlayerState: () => 1,
+      })
+    }
+    const handleError = () => {
+      clearTimeout(timeoutTimer)
+      reject(new Error('Bilibili 画中画播放器加载失败'))
+    }
+    const timeoutTimer = setTimeout(() => {
+      iframe.removeEventListener('load', handleLoad)
+      iframe.removeEventListener('error', handleError)
+      reject(new Error('Bilibili 画中画播放器加载超时'))
+    }, 15000)
+
+    iframe.addEventListener('load', handleLoad, { once: true })
+    iframe.addEventListener('error', handleError, { once: true })
+    hostWindow.document.body.replaceChildren(iframe)
+  })
+}
+
+export async function createPipPlayer(options) {
+  const { pipWindow, video } = options
+  const hostWindow = await preparePipWindow(pipWindow, video.providerName)
+
+  if (pipWindow.closed) {
+    throw new Error('画中画窗口已关闭')
+  }
+
+  const hostDocument = hostWindow.document
+  hostDocument.documentElement.style.width = '100%'
+  hostDocument.documentElement.style.height = '100%'
+  hostDocument.body.style.width = '100%'
+  hostDocument.body.style.height = '100%'
+  hostDocument.body.style.margin = '0'
+  hostDocument.body.style.overflow = 'hidden'
+  hostDocument.body.style.background = '#000'
+
+  if (video.provider === 'bilibili') {
+    return createBilibiliPipPlayer({ ...options, hostWindow })
+  }
+  return createYouTubePipPlayer({ ...options, hostWindow })
 }
