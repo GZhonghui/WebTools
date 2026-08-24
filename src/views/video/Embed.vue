@@ -1,12 +1,14 @@
 <script setup>
-import { computed, onBeforeUnmount, ref } from 'vue'
+import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue'
+import { useRoute } from 'vue-router'
 import { setTitle } from '../../common.js'
 import { useDocumentPip } from './embed/useDocumentPip.js'
 import { useVideoPlayer } from './embed/useVideoPlayer.js'
-import { parseVideoUrl } from './embed/videoUrl.js'
+import { parseVideoId, parseVideoUrl } from './embed/videoUrl.js'
 
 setTitle('视频嵌入')
 
+const route = useRoute()
 const input = ref('')
 const playerHost = ref(null)
 const parsedVideo = ref(null)
@@ -58,6 +60,15 @@ async function pasteFromClipboard() {
   }
 }
 
+async function loadVideo(parsed) {
+  parsedVideo.value = parsed
+  try {
+    await player.load(parsed)
+  } catch {
+    // The player exposes a concise, user-facing error message.
+  }
+}
+
 async function embedVideo() {
   inputError.value = ''
   pip.errorMessage.value = ''
@@ -67,21 +78,59 @@ async function embedVideo() {
     return
   }
 
-  let parsed
   try {
-    parsed = parseVideoUrl(input.value)
+    await loadVideo(parseVideoUrl(input.value))
   } catch (error) {
     inputError.value = error instanceof Error ? error.message : '无法识别此链接'
-    return
-  }
-
-  parsedVideo.value = parsed
-  try {
-    await player.load(parsed)
-  } catch {
-    // The player exposes a concise, user-facing error message.
   }
 }
+
+function getQueryValue(name) {
+  const value = route.query[name]
+  if (!Array.isArray(value)) return value
+  return value.find((item) => typeof item === 'string' && item.trim())
+}
+
+async function embedVideoFromQuery() {
+  const site = getQueryValue('site')
+  const id = getQueryValue('id')
+
+  if (site != null || id != null) {
+    inputError.value = ''
+    pip.errorMessage.value = ''
+
+    if (pip.active.value) {
+      inputError.value = '请先关闭画中画窗口'
+      return
+    }
+
+    try {
+      const parsed = parseVideoId(site, id, {
+        page: getQueryValue('p'),
+        start: getQueryValue('t'),
+      })
+      input.value = parsed.watchUrl
+      await loadVideo(parsed)
+    } catch (error) {
+      inputError.value = error instanceof Error ? error.message : '无法识别 URL 参数'
+    }
+    return
+  }
+}
+
+watch(
+  () => [
+    route.query.site,
+    route.query.id,
+    route.query.p,
+    route.query.t,
+  ],
+  embedVideoFromQuery,
+)
+
+onMounted(() => {
+  embedVideoFromQuery()
+})
 
 onBeforeUnmount(() => {
   pip.destroy()
