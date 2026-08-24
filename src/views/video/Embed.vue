@@ -14,6 +14,10 @@ const playerHost = ref(null)
 const parsedVideo = ref(null)
 const inputError = ref('')
 const isPasting = ref(false)
+const userscriptUrl = new URL(
+  `${import.meta.env.BASE_URL}userscripts/video-embed.user.js`,
+  window.location.origin,
+).toString()
 
 const player = useVideoPlayer(playerHost)
 const pip = useDocumentPip(player)
@@ -141,6 +145,22 @@ onBeforeUnmount(() => {
 <template>
   <h2 class="tool_title">视频嵌入</h2>
 
+  <section class="userscript-card" aria-labelledby="userscript-title">
+    <div>
+      <strong id="userscript-title">在视频页面一键打开</strong>
+      <p>
+        已安装 Tampermonkey？安装脚本后，YouTube 和 Bilibili 视频页面右上角会显示“嵌入播放”按钮。
+      </p>
+    </div>
+    <a
+      class="stranded-button userscript-install-button"
+      :href="userscriptUrl"
+      title="安装 WebTools 视频嵌入油猴脚本"
+    >
+      安装油猴脚本
+    </a>
+  </section>
+
   <form @submit.prevent="embedVideo">
     <label for="video-url">视频链接</label>
     <input
@@ -201,10 +221,54 @@ onBeforeUnmount(() => {
 </template>
 
 <style scoped>
+.userscript-card {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+  width: min(100%, 720px);
+  box-sizing: border-box;
+  margin: 0 0 14px;
+  padding: 14px 16px;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  background: #f7f7f7;
+}
+
+.userscript-card p {
+  margin: 6px 0 0;
+  line-height: 1.5;
+}
+
+.userscript-install-button {
+  flex: none;
+  display: inline-block;
+  box-sizing: border-box;
+  padding: 9px 14px;
+  border: 1px solid #222;
+  border-radius: 5px;
+  background: #fff;
+  color: #111;
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+.userscript-install-button:hover {
+  background: #e9e9e9;
+}
+
 .video-player {
   width: min(100%, 720px);
   aspect-ratio: 16 / 9;
   margin-top: 10px;
   background: #000;
+}
+
+@media (max-width: 640px) {
+  .userscript-card {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 8px;
+  }
 }
 </style>
