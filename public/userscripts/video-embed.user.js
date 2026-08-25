@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         WebTools 视频嵌入快捷按钮
 // @namespace    webtools-video-embed
-// @version      1.0.0
+// @version      1.0.1
 // @description  在 YouTube 和 Bilibili 视频页面右上角显示 WebTools 嵌入播放按钮
 // @author       WebTools
 // @match        https://www.youtube.com/*
@@ -14,6 +14,7 @@
 // @grant        GM_getValue
 // @grant        GM_setValue
 // @grant        GM_registerMenuCommand
+// @grant        window.close
 // @run-at       document-idle
 // @noframes
 // ==/UserScript==
@@ -180,11 +181,12 @@
 
     try {
       const targetUrl = createTargetUrl(video)
-      GM_openInTab(targetUrl, {
+      const openedTab = GM_openInTab(targetUrl, {
         active: true,
         insert: true,
         setParent: true,
       })
+      if (openedTab) window.close()
     } catch (error) {
       window.alert(error instanceof Error ? error.message : '无法打开 WebTools 视频嵌入页面。')
     }
