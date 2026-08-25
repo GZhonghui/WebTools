@@ -19,6 +19,9 @@ export function createBilibiliIframe(targetWindow, video, {
 
   iframe.referrerPolicy = 'strict-origin-when-cross-origin'
   iframe.allow = 'autoplay; encrypted-media; picture-in-picture; fullscreen'
+  // Keep the player functional while preventing its links/scripts from opening
+  // external tabs or navigating the WebTools page.
+  iframe.setAttribute('sandbox', 'allow-scripts allow-same-origin allow-presentation')
   iframe.allowFullscreen = true
   iframe.title = title
   iframe.width = '100%'

@@ -37,6 +37,16 @@ const canUsePlayer = computed(() => (
     && !['idle', 'loading', 'error'].includes(player.status.value)
 ))
 
+const canControlPlayback = computed(() => (
+  parsedVideo.value?.provider === 'youtube'
+    && canUsePlayer.value
+    && !pip.active.value
+))
+
+const isPlaying = computed(() => (
+  ['playing', 'buffering'].includes(player.status.value)
+))
+
 const visibleError = computed(() => (
   inputError.value || player.errorMessage.value || pip.errorMessage.value
 ))
@@ -86,6 +96,15 @@ async function embedVideo() {
     await loadVideo(parseVideoUrl(input.value))
   } catch (error) {
     inputError.value = error instanceof Error ? error.message : '无法识别此链接'
+  }
+}
+
+function togglePlayback() {
+  if (!canControlPlayback.value) return
+  if (isPlaying.value) {
+    player.pause()
+  } else {
+    player.play()
   }
 }
 
@@ -152,13 +171,23 @@ onBeforeUnmount(() => {
         已安装 Tampermonkey？安装脚本后，YouTube 和 Bilibili 视频页面右上角会显示“嵌入播放”按钮。
       </p>
     </div>
-    <a
-      class="stranded-button userscript-install-button"
-      :href="userscriptUrl"
-      title="安装 WebTools 视频嵌入油猴脚本"
-    >
-      安装油猴脚本
-    </a>
+    <div class="userscript-actions">
+      <a
+        class="userscript-store-link"
+        href="https://chromewebstore.google.com/detail/tampermonkey/dhdgffkkebhmkfjojejmpbldmpobfkfo"
+        target="_blank"
+        rel="noopener noreferrer"
+      >
+        获取 Tampermonkey
+      </a>
+      <a
+        class="stranded-button userscript-install-button"
+        :href="userscriptUrl"
+        title="安装 WebTools 视频嵌入油猴脚本"
+      >
+        安装油猴脚本
+      </a>
+    </div>
   </section>
 
   <form @submit.prevent="embedVideo">
@@ -194,6 +223,16 @@ onBeforeUnmount(() => {
     <p>状态：{{ pip.active.value ? '画中画' : (statusLabels[player.status.value] || '等待播放') }}</p>
 
     <button
+      v-if="parsedVideo.provider === 'youtube'"
+      class="stranded-button"
+      type="button"
+      :disabled="!canControlPlayback"
+      @click="togglePlayback"
+    >
+      {{ isPlaying ? '暂停' : '播放' }}
+    </button>
+
+    <button
       v-if="pip.supported.value"
       class="stranded-button"
       type="button"
@@ -207,8 +246,9 @@ onBeforeUnmount(() => {
       在 {{ parsedVideo.providerName }} 打开
     </a>
 
-    <p v-if="parsedVideo.provider === 'bilibili' && pip.supported.value">
-      Bilibili 外链播放器没有公开的播放进度接口；切换页面内画中画时会从链接指定的时间重新载入。
+    <p v-if="parsedVideo.provider === 'bilibili'">
+      Bilibili 外链播放器没有公开的播放控制和进度接口；请使用播放器自带的播放栏。
+      <span v-if="pip.supported.value">切换页面内画中画时会从链接指定的时间重新载入。</span>
     </p>
 
     <p v-else-if="pip.supported.value">
@@ -240,8 +280,18 @@ onBeforeUnmount(() => {
   line-height: 1.5;
 }
 
-.userscript-install-button {
+.userscript-actions {
   flex: none;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.userscript-store-link {
+  white-space: nowrap;
+}
+
+.userscript-install-button {
   display: inline-block;
   box-sizing: border-box;
   padding: 9px 14px;
@@ -269,6 +319,10 @@ onBeforeUnmount(() => {
     align-items: flex-start;
     flex-direction: column;
     gap: 8px;
+  }
+
+  .userscript-actions {
+    flex-wrap: wrap;
   }
 }
 </style>
