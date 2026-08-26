@@ -14,6 +14,7 @@ const playerHost = ref(null)
 const parsedVideo = ref(null)
 const inputError = ref('')
 const isPasting = ref(false)
+const isWebFullscreen = ref(false)
 const userscriptUrl = new URL(
   `${import.meta.env.BASE_URL}userscripts/video-embed.user.js`,
   window.location.origin,
@@ -41,6 +42,10 @@ const canControlPlayback = computed(() => (
   parsedVideo.value?.provider === 'youtube'
     && canUsePlayer.value
     && !pip.active.value
+))
+
+const canUseWebFullscreen = computed(() => (
+  canUsePlayer.value && !pip.active.value
 ))
 
 const isPlaying = computed(() => (
@@ -108,6 +113,27 @@ function togglePlayback() {
   }
 }
 
+function setWebFullscreen(active) {
+  isWebFullscreen.value = active
+  document.documentElement.classList.toggle('video-web-fullscreen', active)
+  document.body.classList.toggle('video-web-fullscreen', active)
+}
+
+function enterWebFullscreen() {
+  if (!canUseWebFullscreen.value) return
+  setWebFullscreen(true)
+}
+
+function exitWebFullscreen() {
+  setWebFullscreen(false)
+}
+
+function handleFullscreenKeydown(event) {
+  if (isWebFullscreen.value && event.key === 'Escape') {
+    exitWebFullscreen()
+  }
+}
+
 function getQueryValue(name) {
   const value = route.query[name]
   if (!Array.isArray(value)) return value
@@ -153,9 +179,12 @@ watch(
 
 onMounted(() => {
   embedVideoFromQuery()
+  document.addEventListener('keydown', handleFullscreenKeydown)
 })
 
 onBeforeUnmount(() => {
+  document.removeEventListener('keydown', handleFullscreenKeydown)
+  exitWebFullscreen()
   pip.destroy()
   player.destroy()
 })
@@ -217,7 +246,21 @@ onBeforeUnmount(() => {
 
   <p v-if="visibleError" role="alert">{{ visibleError }}</p>
 
-  <div v-show="parsedVideo" ref="playerHost" class="video-player"></div>
+  <div
+    v-show="parsedVideo"
+    class="video-player-shell"
+    :class="{ 'web-fullscreen': isWebFullscreen }"
+  >
+    <div ref="playerHost" class="video-player"></div>
+    <button
+      v-if="isWebFullscreen"
+      class="exit-web-fullscreen-button"
+      type="button"
+      @click="exitWebFullscreen"
+    >
+      退出网页全屏
+    </button>
+  </div>
 
   <template v-if="parsedVideo">
     <p>状态：{{ pip.active.value ? '画中画' : (statusLabels[player.status.value] || '等待播放') }}</p>
@@ -230,6 +273,15 @@ onBeforeUnmount(() => {
       @click="togglePlayback"
     >
       {{ isPlaying ? '暂停' : '播放' }}
+    </button>
+
+    <button
+      class="stranded-button"
+      type="button"
+      :disabled="!canUseWebFullscreen"
+      @click="enterWebFullscreen"
+    >
+      网页全屏
     </button>
 
     <button
@@ -307,11 +359,61 @@ onBeforeUnmount(() => {
   background: #e9e9e9;
 }
 
-.video-player {
+.video-player-shell {
+  position: relative;
   width: min(100%, 720px);
   aspect-ratio: 16 / 9;
   margin-top: 10px;
   background: #000;
+}
+
+.video-player {
+  width: 100%;
+  height: 100%;
+  background: #000;
+}
+
+.video-player-shell.web-fullscreen {
+  position: fixed;
+  inset: 0;
+  z-index: 2147483646;
+  width: 100vw;
+  height: 100vh;
+  height: 100dvh;
+  margin: 0;
+  aspect-ratio: auto;
+  overflow: hidden;
+  overscroll-behavior: none;
+}
+
+.exit-web-fullscreen-button {
+  position: absolute;
+  top: 18px;
+  right: 18px;
+  z-index: 2;
+  padding: 11px 16px;
+  border: 1px solid rgba(255, 255, 255, 0.7);
+  border-radius: 7px;
+  background: rgba(0, 0, 0, 0.72);
+  box-shadow: 0 3px 12px rgba(0, 0, 0, 0.35);
+  color: #fff;
+  cursor: pointer;
+  font: 700 17px/1.2 "SimSun", "STSong", serif;
+}
+
+.exit-web-fullscreen-button:hover {
+  background: rgba(0, 0, 0, 0.9);
+}
+
+.exit-web-fullscreen-button:focus-visible {
+  outline: 3px solid #fff;
+  outline-offset: 3px;
+}
+
+:global(html.video-web-fullscreen),
+:global(body.video-web-fullscreen) {
+  overflow: hidden !important;
+  overscroll-behavior: none;
 }
 
 @media (max-width: 640px) {
