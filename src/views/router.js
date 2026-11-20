@@ -21,6 +21,7 @@ import MathPrime from './math/Prime.vue'
 
 import Text from './Text.vue'
 import TextWordCount from './text/WordCount.vue'
+import TextJsonCheck from './text/JsonCheck.vue'
 
 import Game from './Game.vue'
 import GameEldenRing from './game/EldenRing.vue'
@@ -81,6 +82,7 @@ const routes = [
     component: Text,
     children: [
       { path: 'word-count', component: TextWordCount },
+      { path: 'json-check', component: TextJsonCheck },
     ]
   },
   {
