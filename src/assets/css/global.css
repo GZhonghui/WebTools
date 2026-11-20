@@ -32,6 +32,11 @@ input[type="file"] {
   margin-bottom: 10px;
 }
 
+input[type="file"], .code-preview {
+  box-sizing: border-box;
+  max-width: 100%;
+}
+
 progress {
   width: 256px;
   color: blue;
