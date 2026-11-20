@@ -25,20 +25,19 @@ import TextJsonCheck from './text/JsonCheck.vue'
 
 import Game from './Game.vue'
 import GameEldenRing from './game/EldenRing.vue'
+import GameNikke from './game/Nikke.vue'
 
 import Encryption from './Encryption.vue'
 import EncryptionPassword from './encryption/Password.vue'
 import EncryptionOtp from './encryption/Otp.vue'
 import EncryptionBarcode from './encryption/Barcode.vue'
 import EncryptionQr from './encryption/Qr.vue'
+import EncryptionEncode from './encryption/Encode.vue'
 
-import Misc from './Misc.vue'
-import MiscNikke from './misc/Nikke.vue'
-import MiscEncode from './misc/Encode.vue'
-import MiscTime from './misc/Time.vue'
-import MiscComment from './misc/Comment.vue'
-import MiscPomodoro from './misc/Pomodoro.vue'
-import MiscAge from './misc/Age.vue'
+import Time from './Time.vue'
+import TimeTimezone from './time/Timezone.vue'
+import TimePomodoro from './time/Pomodoro.vue'
+import TimeAge from './time/Age.vue'
 
 // 配置路由
 const routes = [
@@ -90,6 +89,7 @@ const routes = [
     component: Game,
     children: [
       { path: 'elden-ring', component: GameEldenRing },
+      { path: 'nikke', component: GameNikke },
     ]
   },
   {
@@ -100,18 +100,16 @@ const routes = [
       { path: 'otp', component: EncryptionOtp },
       { path: 'barcode', component: EncryptionBarcode },
       { path: 'qr', component: EncryptionQr },
+      { path: 'encode', component: EncryptionEncode },
     ]
   },
   {
-    path: '/misc',
-    component: Misc,
+    path: '/time',
+    component: Time,
     children: [
-      { path: 'nikke', component: MiscNikke },
-      { path: 'encode', component: MiscEncode },
-      { path: 'time', component: MiscTime },
-      { path: 'comment', component: MiscComment },
-      { path: 'pomodoro', component: MiscPomodoro },
-      { path: 'age', component: MiscAge },
+      { path: 'timezone', component: TimeTimezone },
+      { path: 'pomodoro', component: TimePomodoro },
+      { path: 'age', component: TimeAge },
     ]
   }
 ]

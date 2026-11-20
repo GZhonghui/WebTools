@@ -101,7 +101,7 @@ onBeforeUnmount(() => {
   <h2 class="tool_title">番茄钟</h2>
   <!-- 最基础的音频组件 使用 loop 设定循环播放 -->
   <audio id="bgm" loop>
-    <source src="/pomodoro/Tide_app_Her_city.mp3" type="audio/mpeg">
+    <source src="/time/pomodoro/Tide_app_Her_city.mp3" type="audio/mpeg">
   </audio>
   <div style="margin-bottom: 16px;">
     <label>工作</label>

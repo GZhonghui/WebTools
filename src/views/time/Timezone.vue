@@ -55,7 +55,7 @@ onBeforeUnmount(() => {
 </script>
 
 <template>
-  <h2 class="tool_title">时间</h2>
+  <h2 class="tool_title">时区</h2>
   <div>
     <p>
       时间戳：{{ timestamp }}

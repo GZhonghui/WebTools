@@ -36,8 +36,8 @@ function randomCharacter() {
   
   // 创建新的SpinePlayer实例
   currentPlayer = new SpinePlayer('player-container', {
-    skelUrl: `/nikke/${name}/${name}.skel`,
-    atlasUrl: `/nikke/${name}/${name}.atlas`,
+    skelUrl: `/game/nikke/${name}/${name}.skel`,
+    atlasUrl: `/game/nikke/${name}/${name}.atlas`,
     animation: "idle",
     backgroundColor: "#00000000",
     alpha: true,
