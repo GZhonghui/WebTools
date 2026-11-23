@@ -12,12 +12,16 @@ import ImageResize from './image/Resize.vue'
 import ImageWatermark from './image/Watermark.vue'
 import ImageFormat from './image/Format.vue'
 
+import Design from './Design.vue'
+import DesignColor from './design/Color.vue'
+
 import Video from './Video.vue'
 import VideoEmbed from './video/Embed.vue'
 
 import Math from './Math.vue'
 import MathInverse from './math/Inverse.vue'
 import MathPrime from './math/Prime.vue'
+import MathRadix from './math/Radix.vue'
 
 import Text from './Text.vue'
 import TextWordCount from './text/WordCount.vue'
@@ -42,7 +46,7 @@ import TimeAge from './time/Age.vue'
 // 配置路由
 const routes = [
   { path: '/', component: Home },
-  { 
+  {
     path: '/file',
     component: File, // 一个路径对应一个组件
     // 配置子路由
@@ -62,6 +66,13 @@ const routes = [
     ]
   },
   {
+    path: '/design',
+    component: Design,
+    children: [
+      { path: 'color', component: DesignColor },
+    ]
+  },
+  {
     path: '/video',
     component: Video,
     children: [
@@ -74,6 +85,7 @@ const routes = [
     children: [
       { path: 'inverse', component: MathInverse },
       { path: 'prime', component: MathPrime },
+      { path: 'radix', component: MathRadix },
     ]
   },
   {

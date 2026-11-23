@@ -24,12 +24,15 @@ export function isPrime(n) {
 
 /**
  * AI: 计算 a 和 b 的最大公约数（gcd）
- * @param {number} a 
- * @param {number} b 
- * @returns {number} gcd(a, b)
+ * 两个参数使用相同的整数类型（number 或 bigint）。
  */
 export function gcd(a, b) {
-  return b === 0 ? a : gcd(b, a % b);
+  while (b) {
+    const remainder = a % b;
+    a = b;
+    b = remainder;
+  }
+  return a;
 }
 
 /**

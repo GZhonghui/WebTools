@@ -11,7 +11,9 @@
   "dependencies": {
     "@esotericsoftware/spine-player": "^4.0.30",
     "@esotericsoftware/spine-player-41": "npm:@esotericsoftware/spine-player@^4.1.54",
+    "@exodus/bytes": "^1.16.0",
     "crypto-js": "^4.2.0",
+    "culori": "^4.0.2",
     "file-saver": "^2.0.5",
     "jsbarcode": "^3.12.3",
     "jsonc-parser": "^3.3.1",

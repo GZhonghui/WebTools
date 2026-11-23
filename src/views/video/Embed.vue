@@ -301,6 +301,8 @@ onBeforeUnmount(() => {
     <p v-if="parsedVideo.provider === 'bilibili'">
       Bilibili 外链播放器没有公开的播放控制和进度接口；请使用播放器自带的播放栏。
       <span v-if="pip.supported.value">切换页面内画中画时会从链接指定的时间重新载入。</span>
+      <br>
+      本工具会拦截 Bilibili 播放器的强制跳转，让你留在当前页面观看。
     </p>
 
     <p v-else-if="pip.supported.value">
